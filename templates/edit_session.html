@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Tutoring Session</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2em;
+            max-width: 800px;
+            margin: auto;
+        }
+        form {
+            background: #f7f7f7;
+            padding: 1.5em;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        label {
+            font-weight: bold;
+        }
+        input, select {
+            margin-bottom: 1em;
+            padding: 0.5em;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="submit"] {
+            background-color: #2d89ef;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Edit Tutoring Session</h1>
+    <form method="POST">
+        <label>Subject:</label>
+        <input type="text" name="subject" value="{{ session.subject }}" required>
+
+        <label>Date:</label>
+        <input type="date" name="date" value="{{ session.date }}" required>
+
+        <label>Time:</label>
+        <input type="time" name="time" value="{{ session.time.strftime('%H:%M') }}" required>
+
+        <label>Duration (mins):</label>
+        <input type="number" name="duration" value="{{ session.duration }}" required>
+
+        <label>Location:</label>
+        <select name="location" required>
+            {% for loc in locations %}
+                <option value="{{ loc.location_id }}" {% if loc.location_id == session.location_id %}selected{% endif %}>
+                    {{ loc.building }} - Room {{ loc.room }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <label>Select Tutor:</label>
+        <select name="tutor_id" required>
+            {% for student in students %}
+                <option value="{{ student.student_id }}" {% if student.student_id == tutor_id %}selected{% endif %}>
+                    {{ student.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <label>Select Tutees:</label><br>
+        {% for student in students %}
+            <input type="checkbox" name="tutee_ids" value="{{ student.student_id }}"
+                   {% if student.student_id in tutee_ids %}checked{% endif %}>
+            {{ student.name }}<br>
+        {% endfor %}
+
+        <br><input type="submit" value="Update Session">
+    </form>
+    <br>
+    <a href="{{ url_for('home') }}">← Back to Home</a>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<h2>Session Report</h2>
+
+<table border="1">
+  <tr>
+    <th>Subject</th>
+    <th>Date</th>
+    <th>Time</th>
+    <th>Duration</th>
+    <th>Location</th>
+    <th># of Tutees</th>
+  </tr>
+  {% for row in sessions %}
+  <tr>
+    <td>{{ row.subject }}</td>
+    <td>{{ row.date }}</td>
+    <td>{{ row.time }}</td>
+    <td>{{ row.duration }}</td>
+    <td>{{ row.room }}</td>
+    <td>{{ row.tutees }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h3>Summary Stats</h3>
+<p>Total Sessions: {{ total_sessions }}</p>
+<p>Average Duration: {{ avg_duration }} mins</p>
+<p>Total Tutees: {{ total_tutees }}</p>
+<p>Average Tutees per Session: {{ avg_tutees }}</p>

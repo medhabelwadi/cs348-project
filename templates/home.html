@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tutoring Sessions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2em;
+            max-width: 900px;
+            margin: auto;
+            background-color: #f9f9f9;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        form {
+            background: #fff;
+            padding: 1.5em;
+            border-radius: 8px;
+            margin-bottom: 2em;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input, select {
+            margin-bottom: 1em;
+            padding: 0.5em;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="submit"] {
+            background-color: #2d89ef;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .session {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 1em;
+            margin-bottom: 1.5em;
+            background-color: #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+
+        .session h3 {
+            margin-top: 0;
+        }
+
+        .tutees {
+            margin: 0.5em 0 0 1em;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.5em;
+            margin-top: 1em;
+        }
+
+        .button-group form {
+            margin: 0;
+        }
+
+        .button-edit, .button-delete {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .button-edit {
+            background-color: #f0ad4e;
+        }
+
+        .button-delete {
+            background-color: #d9534f;
+        }
+
+        ul {
+            padding-left: 1.5em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Create a New Tutoring Session</h1>
+    <form method="POST">
+        <label>Subject:</label>
+        <input type="text" name="subject" required>
+
+        <label>Date:</label>
+        <input type="date" name="date" required>
+
+        <label>Time:</label>
+        <input type="time" name="time" required>
+
+        <label>Duration (mins):</label>
+        <input type="number" name="duration" required>
+
+        <label>Location:</label>
+        <select name="location" required>
+            {% for loc in locations %}
+                <option value="{{ loc.location_id }}">{{ loc.building }} - Room {{ loc.room }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Select Tutor:</label>
+        <select name="tutor_id" required>
+            {% for student in students %}
+                <option value="{{ student.student_id }}">{{ student.name }}</option>
+            {% endfor %}
+        </select>
+        
+        <label><strong>Select Tutees:</strong></label><br>
+        {% for student in students %}
+            <div style="margin-bottom: 0.7em;">
+                <input type="checkbox" name="tutee_ids" value="{{ student.student_id }}">
+                <label>{{ student.name }}</label>
+            </div>
+        {% endfor %}
+
+        <br><input type="submit" value="Create Session">
+    </form>
+
+    <h2>Existing Tutoring Sessions</h2>
+    {% for item in sessions %}
+        <div class="session">
+            <h3>{{ item.session.subject }} - {{ item.session.date }} @ {{ item.session.time }}</h3>
+            <p><strong>Duration:</strong> {{ item.session.duration }} minutes</p>
+            <p><strong>Location:</strong> {{ item.location.building }} - Room {{ item.location.room }}</p>
+            <p><strong>Tutor:</strong> {{ item.tutor.name }}</p>
+            <p><strong>Tutees:</strong></p>
+            <ul class="tutees">
+                {% for tutee in item.tutees %}
+                    <li>{{ tutee.name }}</li>
+                {% endfor %}
+            </ul>
+            <div class="button-group">
+                <form method="GET" action="{{ url_for('edit_session', session_id=item.session.session_id) }}">
+                    <button type="submit" class="button-edit">Edit</button>
+                </form>
+                <form method="POST" action="{{ url_for('delete_session', session_id=item.session.session_id) }}" onsubmit="return confirm('Are you sure you want to delete this session?');">
+                    <button type="submit" class="button-delete">Delete</button>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+    <a href="{{ url_for('report') }}">
+        <button style="margin-bottom: 2em; background-color: #4CAF50; color: white; padding: 10px 20px;
+                       border: none; border-radius: 4px; cursor: pointer;">
+            Generate Report
+        </button>
+    </a>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<h2>Generate Session Report</h2>
+<form method="POST">
+  Start Date: <input type="date" name="start_date" required><br>
+  End Date: <input type="date" name="end_date" required><br><br>
+
+  <label for="tutor_id">Select Tutor:</label>
+  <select name="tutor_id" required>
+    {% for tutor in tutors %}
+      <option value="{{ tutor.student_id }}">{{ tutor.name }}</option>
+    {% endfor %}
+  </select><br><br>
+
+  <label for="location_id">Select Location (Optional):</label>
+  <select name="location_id">
+    <option value="">All</option>
+    {% for location in locations %}
+      <option value="{{ location.location_id }}">{{ location.room }}</option>
+    {% endfor %}
+  </select><br><br>
+
+  <input type="submit" value="Generate Report">
+</form>
