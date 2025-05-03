@@ -1,0 +1,13 @@
+---
+runtime: python39
+entrypoint: gunicorn -b :$PORT app:app
+
+env_variables:
+  DB_USER: "flaskuser"
+  DB_PASS: "cs348pass123"
+  DB_NAME: "tutoring_db"
+  CLOUD_SQL_CONNECTION_NAME: "cs348-project-458503:us-central1:cs348-mysql"
+  GOOGLE_APPLICATION_CREDENTIALS: "./cs348-project-458503-3cd93539fe07.json"
+
+beta_settings:
+  cloud_sql_instances: cs348-project-458503:us-central1:cs348-mysql

@@ -1,16 +1,21 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for
 from sqlalchemy import text
 from models import db, Student, Session, SessionParticipant, Location
 from datetime import datetime
 
 app = Flask(__name__)
-#replace <password> with your mysql password
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:<password>@localhost/tutoring_db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db.init_app(app)
 
-with app.app_context():
-    db.create_all()
+# Environment variables provided by Render
+DB_USER = os.environ.get("DB_USER")
+DB_PASS = os.environ.get("DB_PASS")
+DB_NAME = os.environ.get("DB_NAME")
+DB_HOST = os.environ.get("DB_HOST")
+
+app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db.init_app(app)
 
 @app.route("/report", methods=["GET", "POST"])
 def report():
@@ -50,11 +55,9 @@ def report():
                                total_tutees=total_tutees,
                                avg_tutees=total_tutees / total_sessions if total_sessions else 0)
 
-    # GET request: show the form
     tutors = db.session.query(Student).join(SessionParticipant).filter(SessionParticipant.is_tutor == True).distinct().all()
     locations = Location.query.all()
     return render_template("report_form.html", tutors=tutors, locations=locations)
-
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -83,7 +86,6 @@ def home():
 
     locations = Location.query.all()
     students = Student.query.all()
-
     sessions = Session.query.all()
     session_data = []
     for s in sessions:
@@ -99,11 +101,10 @@ def home():
         })
 
     return render_template('home.html', locations=locations, students=students, sessions=session_data)
+
 @app.route('/delete_session/<int:session_id>', methods=['POST'])
 def delete_session(session_id):
-    # Delete all participants for this session
     SessionParticipant.query.filter_by(session_id=session_id).delete()
-    # Then delete the session itself
     Session.query.filter_by(session_id=session_id).delete()
     db.session.commit()
     return redirect(url_for('home'))
@@ -113,7 +114,6 @@ def edit_session(session_id):
     session = Session.query.get_or_404(session_id)
 
     if request.method == 'POST':
-        # Update session details
         session.subject = request.form['subject']
         session.date = datetime.strptime(request.form['date'], '%Y-%m-%d').date()
         session.time = datetime.strptime(request.form['time'], '%H:%M').time()
@@ -121,10 +121,8 @@ def edit_session(session_id):
         session.location_id = int(request.form['location'])
         db.session.commit()
 
-        # Remove old participants
         SessionParticipant.query.filter_by(session_id=session_id).delete()
 
-        # Add updated tutor and tutees
         tutor_id = int(request.form['tutor_id'])
         tutee_ids = request.form.getlist('tutee_ids')
 
@@ -137,7 +135,6 @@ def edit_session(session_id):
         db.session.commit()
         return redirect(url_for('home'))
 
-    # For GET request (display form)
     locations = Location.query.all()
     students = Student.query.all()
     participants = SessionParticipant.query.filter_by(session_id=session_id).all()
@@ -151,8 +148,5 @@ def edit_session(session_id):
                            tutor_id=tutor_id,
                            tutee_ids=tutee_ids)
 
-#with app.app_context():
-    #db.create_all()
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
