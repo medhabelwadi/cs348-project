@@ -1,0 +1,15 @@
+# Virtual environment
+venv/
+.venv/
+
+# Secrets: database credentials and service account keys
+env_variables.yaml
+*.json
+.env
+
+# Python
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store

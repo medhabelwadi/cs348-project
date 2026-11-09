@@ -1,0 +1,5 @@
+env_variables:
+  DB_USER: "your-db-user"
+  DB_PASS: "your-db-password"
+  DB_NAME: "tutoring_db"
+  DB_HOST: "your-db-host"
